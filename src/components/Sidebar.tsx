@@ -82,9 +82,11 @@ export default function Sidebar({ open, email, tab, canTransact, onSelect, onClo
       >
         <div className="flex items-center justify-between border-b border-slate-800 p-4">
           <div className="flex items-center gap-3">
-            <div className="grid h-9 w-9 place-items-center rounded-lg bg-amber-400 font-bold text-slate-900">
-              G
-            </div>
+            <img
+              src="/goldcrest-logo.png"
+              alt="Goldcrest logo"
+              className="h-10 w-10 rounded-lg border border-slate-700 object-cover"
+            />
             <div>
               <h2 className="text-lg font-semibold text-amber-300">Goldcrest</h2>
               <p className="text-[11px] text-slate-400">Customer Portal</p>

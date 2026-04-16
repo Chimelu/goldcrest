@@ -111,9 +111,23 @@ export default function TradePage({
               onClick={() => onOpenAsset(m.symbol.toUpperCase())}
             >
               <div className="flex items-center justify-between">
-                <p className="font-medium">
-                  {m.name} ({m.symbol.toUpperCase()})
-                </p>
+                <div className="flex items-center gap-2">
+                  {m.image ? (
+                    <img
+                      src={m.image}
+                      alt={`${m.name} logo`}
+                      className="h-6 w-6 rounded-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-700 text-[10px] font-bold text-slate-200">
+                      {m.symbol.toUpperCase().slice(0, 2)}
+                    </div>
+                  )}
+                  <p className="font-medium">
+                    {m.name} ({m.symbol.toUpperCase()})
+                  </p>
+                </div>
                 <p className="text-sm">${Number(m.current_price).toLocaleString()}</p>
               </div>
               <p
