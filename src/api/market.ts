@@ -8,9 +8,12 @@ export async function getMarkets() {
 }
 
 export async function getCoinChartPoints(coinId: string, days: number): Promise<number[]> {
-  const json = await fetch(
-    `https://api.coingecko.com/api/v3/coins/${encodeURIComponent(coinId)}/market_chart?vs_currency=usd&days=${days}`,
-  ).then(r => r.json());
+  const url = `https://api.coingecko.com/api/v3/coins/${encodeURIComponent(coinId)}/market_chart?vs_currency=usd&days=${days}${days <= 1 ? '&interval=hourly' : ''}`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Chart request failed (${response.status})`);
+  }
+  const json = await response.json();
 
   return Array.isArray(json?.prices)
     ? json.prices

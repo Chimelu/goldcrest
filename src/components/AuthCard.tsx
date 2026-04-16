@@ -51,16 +51,20 @@ export default function AuthCard(props: Props) {
   return (
     <div className="p-3 text-slate-100 md:p-6">
       <div className="mx-auto w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-900/80 p-5 md:p-8">
-        <div className="mb-4 flex items-center gap-3">
+        <div className="mb-4 flex flex-col items-center gap-2 text-center">
           <button
             type="button"
             onClick={onLogoClick}
             aria-label="Go to home"
             className="rounded-xl border border-slate-700"
           >
-            <img src="/goldcrest-logo.png" alt="Goldcrest logo" className="h-12 w-12 rounded-xl object-cover" />
+            <img
+              src="/goldcrest-logo.png"
+              alt="Goldcrest logo"
+              className="h-12 w-12 rounded-xl object-cover"
+            />
           </button>
-          <div>
+          <div className="w-full">
             <h1 className="text-2xl font-semibold text-amber-300">
               {isRegister ? 'Create your account' : 'Welcome back'}
             </h1>

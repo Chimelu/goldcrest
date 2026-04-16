@@ -32,6 +32,8 @@ import {
 } from './api/portfolio';
 import { getCoinChartPoints, getMarkets, getTrendingNews } from './api/market';
 
+type ChartPeriod = '24H' | '7D' | '30D';
+
 export default function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem(TOKEN_KEY));
   const [tab, setTab] = useState<Tab>('trade');
@@ -64,6 +66,8 @@ export default function App() {
   const [selected, setSelected] = useState<string>('BTC');
   const [dashboardChartPoints, setDashboardChartPoints] = useState<number[]>([]);
   const [detailChartPoints, setDetailChartPoints] = useState<number[]>([]);
+  const [detailPeriod, setDetailPeriod] = useState<ChartPeriod>('7D');
+  const [detailChartLoading, setDetailChartLoading] = useState(false);
   const [spendUsd, setSpendUsd] = useState('');
   const [sellAmount, setSellAmount] = useState('');
   const [withdrawUsd, setWithdrawUsd] = useState('');
@@ -136,8 +140,13 @@ export default function App() {
 
   useEffect(() => {
     if (!token) return;
-    void loadCoinData(selectedCoinId);
-  }, [token, selectedCoinId]);
+    void loadCoinData(selectedCoinId, detailPeriod);
+  }, [token, selectedCoinId, detailPeriod]);
+
+  useEffect(() => {
+    if (!token) return;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [token, tab]);
 
   async function loadAll() {
     try {
@@ -164,20 +173,26 @@ export default function App() {
     }
   }
 
-  async function loadCoinData(coinId: string) {
+  async function loadCoinData(coinId: string, period: ChartPeriod) {
+    const detailDays = period === '24H' ? 1 : period === '30D' ? 30 : 7;
     try {
+      setDetailChartLoading(true);
       const [dash, detail, items] = await Promise.all([
         getCoinChartPoints(coinId, 1),
-        getCoinChartPoints(coinId, 7),
+        getCoinChartPoints(coinId, detailDays),
         getTrendingNews(),
       ]);
-      setDashboardChartPoints(dash);
-      setDetailChartPoints(detail);
+      const safeDash = dash.length > 1 ? dash : detail;
+      const safeDetail = detail.length > 1 ? detail : safeDash;
+      setDashboardChartPoints(safeDash);
+      setDetailChartPoints(safeDetail);
       setNews(items);
     } catch {
-      setDashboardChartPoints([]);
-      setDetailChartPoints([]);
+      setDashboardChartPoints(prev => (prev.length > 1 ? prev : []));
+      setDetailChartPoints(prev => (prev.length > 1 ? prev : []));
       setNews([]);
+    } finally {
+      setDetailChartLoading(false);
     }
   }
 
@@ -404,9 +419,9 @@ export default function App() {
           {actionMessage ? <div className="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-300">{actionMessage}</div> : null}
           {loadingData ? <p className="mb-4 text-sm text-slate-400">Loading...</p> : null}
 
-          {tab === 'trade' && <TradePage canTransact={canTransact} availableUsd={portfolio?.availableUsd || '0'} markets={markets} dashboardPath={dashboardPath} onOpenAsset={(symbol) => { setSelected(symbol); setTab('asset'); }} />}
+          {tab === 'trade' && <TradePage canTransact={canTransact} totalUsd={totalUsd} cashUsd={cashUsd} cryptoValueUsd={cryptoValueUsd} availableUsd={portfolio?.availableUsd || '0'} markets={markets} dashboardPath={dashboardPath} onOpenAsset={(symbol) => { setSelected(symbol); setTab('asset'); }} />}
 
-          {tab === 'asset' && <AssetPage selected={selected} selectedMarket={selectedMarket} detailPath={detailPath} selectedHolding={selectedHolding} availableUsd={cashUsd} canTransact={canTransact} spendUsd={spendUsd} sellAmount={sellAmount} news={news} setSpendUsd={setSpendUsd} setSellAmount={setSellAmount} onBack={() => setTab('trade')} onBuy={() => void buy()} onSell={() => void sell()} />}
+          {tab === 'asset' && <AssetPage selected={selected} selectedMarket={selectedMarket} detailPath={detailPath} detailPeriod={detailPeriod} detailChartLoading={detailChartLoading} selectedHolding={selectedHolding} availableUsd={cashUsd} canTransact={canTransact} spendUsd={spendUsd} sellAmount={sellAmount} news={news} setSpendUsd={setSpendUsd} setSellAmount={setSellAmount} onSetDetailPeriod={setDetailPeriod} onBack={() => setTab('trade')} onBuy={() => void buy()} onSell={() => void sell()} />}
 
           {tab === 'wallet' && canTransact && <WalletPage totalUsd={totalUsd} cashUsd={cashUsd} cryptoValueUsd={cryptoValueUsd} withdrawUsd={withdrawUsd} withdrawAddress={withdrawAddress} withdrawNetwork={withdrawNetwork} withdrawals={withdrawals} setWithdrawUsd={setWithdrawUsd} setWithdrawAddress={setWithdrawAddress} setWithdrawNetwork={setWithdrawNetwork} onCreateWithdrawal={() => void createWithdrawal()} />}
 

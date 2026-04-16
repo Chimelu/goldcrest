@@ -12,7 +12,7 @@ type Props = {
 export default function LandingPage({ onRegister, onNavigate }: Props) {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
-      <LandingHeader onNavigate={onNavigate} />
+      <LandingHeader onNavigate={onNavigate} currentPath="/" />
       <main>
         <HeroSection onGetStarted={onRegister} />
         <CryptoSection />

@@ -10,7 +10,7 @@ type Props = {
 export default function ContactPage({ onLogin, onRegister, onNavigate }: Props) {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
-      <LandingHeader onNavigate={onNavigate} />
+      <LandingHeader onNavigate={onNavigate} currentPath="/contact" />
       <main className="mx-auto w-full max-w-6xl px-4 py-12 md:px-6">
         <section className="grid gap-6 md:grid-cols-2">
           <article className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">

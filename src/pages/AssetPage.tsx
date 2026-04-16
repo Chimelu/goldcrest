@@ -1,10 +1,14 @@
 import { COIN_ABOUT } from '../constants/coins';
 import type { Market, NewsItem } from '../types';
 
+type ChartPeriod = '24H' | '7D' | '30D';
+
 type Props = {
   selected: string;
   selectedMarket?: Market;
   detailPath: string;
+  detailPeriod: ChartPeriod;
+  detailChartLoading: boolean;
   selectedHolding: string;
   availableUsd: number;
   canTransact: boolean;
@@ -13,6 +17,7 @@ type Props = {
   news: NewsItem[];
   setSpendUsd: (v: string) => void;
   setSellAmount: (v: string) => void;
+  onSetDetailPeriod: (period: ChartPeriod) => void;
   onBack: () => void;
   onBuy: () => void;
   onSell: () => void;
@@ -23,6 +28,8 @@ export default function AssetPage(props: Props) {
     selected,
     selectedMarket,
     detailPath,
+    detailPeriod,
+    detailChartLoading,
     selectedHolding,
     availableUsd,
     canTransact,
@@ -31,6 +38,7 @@ export default function AssetPage(props: Props) {
     news,
     setSpendUsd,
     setSellAmount,
+    onSetDetailPeriod,
     onBack,
     onBuy,
     onSell,
@@ -39,19 +47,34 @@ export default function AssetPage(props: Props) {
   return (
     <div className="space-y-4">
       <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4">
-        <div className="mb-2 flex items-center justify-between">
+        <div className="mb-2 flex items-center justify-between gap-3">
           <h2 className="text-lg font-semibold">{selectedMarket?.name || selected} details</h2>
           <button className="rounded-lg border border-slate-700 px-3 py-1 text-xs" onClick={onBack}>
             Back to trade
           </button>
         </div>
-        {detailPath ? (
-          <svg viewBox="0 0 760 180" className="h-48 w-full rounded-xl border border-slate-700 bg-slate-950 p-2">
-            <path d={detailPath} fill="none" stroke="#f5c451" strokeWidth="2.5" />
-          </svg>
-        ) : (
-          <p className="text-sm text-slate-400">No detailed chart data available.</p>
-        )}
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-xs text-slate-400">Performance</p>
+          <div className="flex items-center gap-2">
+            {(['24H', '7D', '30D'] as ChartPeriod[]).map(period => (
+              <button
+                key={period}
+                className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
+                  detailPeriod === period
+                    ? 'border-amber-400 bg-amber-400 text-slate-900'
+                    : 'border-slate-600 text-slate-200 hover:border-amber-400/70 hover:text-amber-300'
+                }`}
+                onClick={() => onSetDetailPeriod(period)}
+              >
+                {period}
+              </button>
+            ))}
+          </div>
+        </div>
+        <svg viewBox="0 0 760 180" className="h-48 w-full rounded-xl border border-slate-700 bg-slate-950 p-2">
+          {detailPath ? <path d={detailPath} fill="none" stroke="#f5c451" strokeWidth="2.5" /> : null}
+        </svg>
+        {detailChartLoading ? <p className="mt-2 text-xs text-slate-400">Loading chart...</p> : null}
         <p className="mt-3 text-sm text-slate-300">
           {COIN_ABOUT[selected] || 'No description available for this asset.'}
         </p>
